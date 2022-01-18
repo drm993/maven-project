@@ -10,7 +10,7 @@ pipeline {
 	}
 
 	triggers {
-	pollSCM("* * * * *') // Polling Source Control
+	pollSCM('* * * * *') // Polling Source Control
 	}
 	
 	stages {
@@ -20,7 +20,7 @@ pipeline {
 		}
 		post {
 			success {
-			echo "Now Archiving
+			echo "Now Archiving...."
 			archiveArtifacts artifacts: '**/target/*.war'
 			}
 		}
@@ -33,7 +33,7 @@ pipeline {
 				deploy adapters: [tomcat8 (credentialsid:
 				'bdf74cb8-7a43-4ee3-99e9-34a08fe193b6', path: '', url:
 				"${params. TOMCAT_DEV_IP)")), contextPath: null, onFailure:
-				false, war: "**/*.war'
+				false, war: '**/*.war'
 				}
 			}
 
@@ -43,7 +43,7 @@ pipeline {
 				deploy adapters: [tomcat8 (credentialsid:
 				'bdf74cb8-7a43-4ee3-99e9-34a08fe193b6', path: "', url:
 				"${params. TOMCAT PROD IP)")), context Path: null, onFailure:
-				false, war: 1**/*.war'
+				false, war: '**/*.war'
 					}
 				}
 			}
