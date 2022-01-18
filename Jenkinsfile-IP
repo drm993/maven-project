@@ -1,0 +1,52 @@
+pipeline {
+
+	agent any
+	
+	parameters {
+	string (name: 'TOMCAT_DEV_IP', defaultValue: 'http://localhost:8090',
+	description: 'Staging Server : 8080')
+	string (name: 'TOMCAT_PROD_IP',
+	defaultValue: 'http://localhost:9090', description:'Production Server : 9090')
+	}
+
+	triggers {
+	pollSCM("* * * * *') // Polling Source Control
+	}
+	
+	stages {
+		stage ('Build') {
+		steps {
+		bat 'myn clean package'
+		}
+		post {
+			success {
+			echo "Now Archiving
+			archiveArtifacts artifacts: '**/target/*.war'
+			}
+		}
+	}
+	
+	stage ('Deployments') {
+		parallel {
+			stage ('Deploy to Staging') {
+				steps {
+				deploy adapters: [tomcat8 (credentialsid:
+				'bdf74cb8-7a43-4ee3-99e9-34a08fe193b6', path: '', url:
+				"${params. TOMCAT_DEV_IP)")), contextPath: null, onFailure:
+				false, war: "**/*.war'
+				}
+			}
+
+
+			stage ('Deploy to Production') {
+				steps {
+				deploy adapters: [tomcat8 (credentialsid:
+				'bdf74cb8-7a43-4ee3-99e9-34a08fe193b6', path: "', url:
+				"${params. TOMCAT PROD IP)")), context Path: null, onFailure:
+				false, war: 1**/*.war'
+					}
+				}
+			}
+		}
+	}
+}		
