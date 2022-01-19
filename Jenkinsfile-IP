@@ -3,10 +3,10 @@ pipeline {
 	agent any
 	
 	parameters {
-	string (name: 'TOMCAT_DEV_IP', defaultValue: 'http://localhost:8090',
+	string (name: 'TOMCAT_DEV_IP', defaultValue: 'http://192.168.0.26:8090',
 	description: 'Staging Server : 8080')
 	string (name: 'TOMCAT_PROD_IP',
-	defaultValue: 'http://localhost:9090', description:'Production Server : 9090')
+	defaultValue: 'http://192.168.0.26:9090', description:'Production Server : 9090')
 	}
 
 	triggers {
