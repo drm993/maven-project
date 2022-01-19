@@ -1,50 +1,51 @@
 pipeline {
 
-	agent any
-	
-	parameters {
-	string (name: 'TOMCAT_DEV_IP', defaultValue: 'http://192.168.0.26:8090',
-	description: 'Staging Server : 8080')
-	string (name: 'TOMCAT_PROD_IP',
-	defaultValue: 'http://192.168.0.26:9090', description:'Production Server : 9090')
-	}
+    agent any
+    
+    parameters {
+    string(name: 'TOMCAT_DEV_IP', defaultValue:'http://192.168.0.26:8090',
+    description:'Staging Server : 8080')
+    string(name: 'TOMCAT_PROD_IP',defaultValue:'http://192.168.0.26:9090',
+  description:'Production Server : 9090')
+    }
+    
+    triggers {
+    pollSCM('* * * * *') // Polling Source Control
+    }
+    
+    stages {
+        stage('Build'){
+            steps{
+            sh 'mvn clean package'
+            }
+            post {
+                success {
+                echo "Now Archiving ...."
+                archiveArtifacts artifacts: '**/target/*.war'
+                }
+            }
+        }
+        
+        stage('Deployments') {
+            parallel {
+                stage ('Deploy to Staging'){
+                    steps {
+                    deploy adapters: [tomcat9(credentialsId: '330bb90f-1cc2-46d1-b058-e6ef7820dff9', 
+                    path: '', url: "${params.TOMCAT_DEV_IP}")], contextPath: null, onFailure:
+                    false, war: '**/*.war'
+                    }
+                }
+            
 
-	triggers {
-	pollSCM('* * * * *') // Polling Source Control
-	}
-	
-	stages {
-		stage ('Build') {
-		steps {
-		sh 'mvn clean package'
-		}
-		post {
-			success {
-			echo "Now Archiving...."
-			archiveArtifacts artifacts: '**/target/*.war'
-			}
-		}
-	}
-	
-	stage ('Deployments') {
-		parallel {
-			stage ('Deploy to Staging') {
-				steps {
-				deploy adapters: [tomcat9(credentialsId: '330bb90f-1cc2-46d1-b058-e6ef7820dff9', path: '', url: 
-				"${params.TOMCAT_DEV_IP}")], contextPath: null, onFailure: 
-				false, war: '**/*.war'
-				}
-			}
-
-
-			stage ('Deploy to Production') {
-				steps {
-				deploy adapters: [tomcat9(credentialsId: '330bb90f-1cc2-46d1-b058-e6ef7820dff9', path: '', url: 
-				"${params.TOMCAT_PROD_IP}")], context Path: null, onFailure: 
-				false, war: '**/*.war'
-					}
-				}
-			}
-		}
-	}
-}		
+        
+                stage ('Deploy to Production'){
+                    steps {
+                    deploy adapters: [tomcat9(credentialsId: '330bb90f-1cc2-46d1-b058-e6ef7820dff9', 
+                    path: '', url: "${params.TOMCAT_PROD_IP}")], contextPath: null, onFailure:
+                    false, war: '**/*.war'
+                    }
+                }
+            }
+        }
+    }
+}
